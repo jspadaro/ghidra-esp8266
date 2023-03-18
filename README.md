@@ -3,12 +3,17 @@
 This is hank/ghidra-esp8266 updated for Ghidra 10.2.3.  It also fixes some
 issues I had when trying to load a tuyasmart-based ESP8266 binary.
 
-### Pre-built Zip
+### Easy Install - Pre-built Zip
 
-- Added pre-built distribution ZIP to built/
-- Can just use this or rebuild yourself below
+Download Extension:
+- [Pre-built distribution Zip](GhidraESP8266_extension.zip)
 
-### Build instructions
+In Ghidra:
+- File -> Install Extensions
+- Click the + button, locate the zip file
+- Restart Ghidra and try it out
+
+### Build Yourself - Instructions
 
 Some info from [this issue](https://github.com/hank/ghidra-esp8266/issues/4)
 
