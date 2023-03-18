@@ -18,13 +18,18 @@ public class ESP8266Module  {
 		for(int i=0; i < header.getSegmentCount(); ++i) {
 			sections.add(new ESP8266Section(reader));
 		}
-		// Parse user ROM
-		reader.setPointerIndex(0x1000);
-		userheader = new ESP8266Header(reader);
-		for(int i=0; i < userheader.getSegmentCount(); ++i) {
-			Msg.info(this, "Adding section");
-			sections.add(new ESP8266Section(reader));
-		}
+        try {
+            // Parse user ROM
+            reader.setPointerIndex(0x1000);
+            userheader = new ESP8266Header(reader);
+            for(int i=0; i < userheader.getSegmentCount(); ++i) {
+                Msg.info(this, "Adding section");
+                sections.add(new ESP8266Section(reader));
+            }
+        }
+        catch(IOException e) {
+            Msg.info(this, "Invalid user rom, but ignoring - possible this image simply doesn't have a user rom at 0x1000?");
+        }
 	}
 
 	public ESP8266Section getSection(int id) {

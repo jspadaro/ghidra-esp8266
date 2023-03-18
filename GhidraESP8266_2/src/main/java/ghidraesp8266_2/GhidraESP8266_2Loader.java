@@ -30,7 +30,6 @@ import ghidra.framework.model.DomainObject;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.data.DataType;
-import ghidra.program.model.data.DataTypeConflictException;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
@@ -59,11 +58,17 @@ public class GhidraESP8266_2Loader extends AbstractLibrarySupportLoader {
 		List<LoadSpec> loadSpecs = new ArrayList<>();
 		BinaryReader reader = new BinaryReader(provider, true);
 		ESP8266Header header = new ESP8266Header(reader);
-		if (ESP8266Constants.ESP_MAGIC_BASE == header.getMagic()) {
-			Msg.info(this, "ESP Magic Matched");
+		if (ESP8266Constants.FLASH_MAGIC == header.getMagic()) {
+			Msg.info(this, "Flash Magic Matched");
 			loadSpecs.add(new LoadSpec(this, 0, 
 					 new LanguageCompilerSpecPair("Xtensa:LE:32:default", "default"), true));
-		}
+		} else if (ESP8266Constants.IROM_MAGIC == header.getMagic()) {
+			Msg.info(this, "IROM Magic Matched");
+			loadSpecs.add(new LoadSpec(this, 0, 
+					 new LanguageCompilerSpecPair("Xtensa:LE:32:default", "default"), true));
+        } else {
+            Msg.info(this, "No ESP8266 magic matched");
+        }
 		return loadSpecs;
 	}
 
@@ -138,15 +143,15 @@ public class GhidraESP8266_2Loader extends AbstractLibrarySupportLoader {
 		try {
 			Data d = listing.getDataAt(address);
 			if (d == null || !dt.isEquivalent(d.getDataType())) {
-				d = DataUtilities.createData(program, address, dt, -1, false, ClearDataMode.CLEAR_ALL_UNDEFINED_CONFLICT_DATA);
+				//d = DataUtilities.createData(program, address, dt, -1, false, ClearDataMode.CLEAR_ALL_UNDEFINED_CONFLICT_DATA);
+				d = DataUtilities.createData(program, address, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
 			}
 			return d;
 		}
 		catch (CodeUnitInsertionException e) {
 			Msg.warn(this, "Data markup conflict at " + address);
-		}
-		catch (DataTypeConflictException e) {
-			Msg.error(this, "Data type markup conflict:" + e.getMessage());
+            Msg.warn(this, e.getMessage());
+            e.printStackTrace();
 		}
 		return null;
 	}

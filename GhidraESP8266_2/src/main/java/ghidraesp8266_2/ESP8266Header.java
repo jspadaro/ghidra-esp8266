@@ -21,8 +21,8 @@ public class ESP8266Header implements StructConverter {
 	public ESP8266Header(BinaryReader reader) throws IOException {
 		magic = reader.readNextByte();
 		Msg.info(this, String.format("Magic = %02x", magic));
-		if (ESP8266Constants.ESP_MAGIC_BASE != getMagic()) {
-			throw new IOException("not an ESP8266 file.");
+		if (ESP8266Constants.FLASH_MAGIC != getMagic() && ESP8266Constants.IROM_MAGIC != getMagic()) {
+			throw new IOException(String.format("Not an ESP8266 file, magic and following 3 bytes in file were: %02x %02x %02x %02x", getMagic(), reader.readNextByte(), reader.readNextByte(), reader.readNextByte()));
 		}
 		segments = reader.readNextByte();
 		Msg.info(this, String.format("Segments = %d", segments));
