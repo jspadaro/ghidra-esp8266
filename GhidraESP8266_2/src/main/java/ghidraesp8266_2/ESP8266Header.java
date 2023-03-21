@@ -17,14 +17,32 @@ public class ESP8266Header implements StructConverter {
 	private byte flash_mode;
 	private byte flash_size_free;
 	private long entrypoint;
+    private int version;
+
+    public int getVersion() {
+        return this.version;
+    }
 	
 	public ESP8266Header(BinaryReader reader) throws IOException {
 		magic = reader.readNextByte();
 		Msg.info(this, String.format("Magic = %02x", magic));
-		if (ESP8266Constants.FLASH_MAGIC != getMagic() && ESP8266Constants.IROM_MAGIC != getMagic()) {
-			throw new IOException(String.format("Not an ESP8266 file, magic and following 3 bytes in file were: %02x %02x %02x %02x", getMagic(), reader.readNextByte(), reader.readNextByte(), reader.readNextByte()));
+        
+        if(ESP8266Constants.ESP_IMAGE_MAGIC == getMagic()) {
+            this.version = 1;
+        } else if(ESP8266Constants.ESP_IMAGE_V2_MAGIC == getMagic()) {
+            this.version = 2;
+        } else {
+			throw new IOException(String.format("Not an ESP8266 file: Magic and following 3 bytes in file were: %02x %02x %02x %02x", getMagic(), reader.readNextByte(), reader.readNextByte(), reader.readNextByte()));
 		}
 		segments = reader.readNextByte();
+        if(this.version == 2) {
+            // For v2 headers, this is always 4.  Segment count seems to be 1 because IROM?
+            if(segments != 4) {
+                throw new IOException(String.format("ESP8266 v2 header had unexpected segment count: %x (expected 4)", segments));
+            }
+            // Don't actually try to read 4 segments, there's only 1
+            segments = 1;
+        }
 		Msg.info(this, String.format("Segments = %d", segments));
 		flash_mode = reader.readNextByte();
 		Msg.info(this, String.format("Flash Mode = %d", flash_mode));

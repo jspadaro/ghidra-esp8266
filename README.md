@@ -47,3 +47,14 @@ right.
 - Also suspect implementation isn't complete in general:
   - Doesn't currently support user2.bin at 0x81000 or 0x101000 either
   - Partition information at https://github.com/espressif/ESP8266_NONOS_SDK/blob/master/documents/EN/%20Partition%20Table.md
+- esptool `bin_img.py` `LoadFirmwareImage()` has most useful info:
+  - https://github.com/espressif/esptool/blob/01bd2269e11213834a26dbd3b53aa06fc7ff745d/esptool/bin_image.py#L38
+  - Focused on `ESP8266ROMFirmwareImage()` because that's the chip I'm looking
+    at
+  - Adding other ROMs should be a matter of walking through that and fixing up
+    the loader section analysis
+- Magic: Appears that 0xe9 = v1, 0xea = v2 formats
+  - Boot segment is at 0x0, user is 0x1000
+  - Unintuitively, at least one Tuya Smart device I have has v2 format for user,
+    but v1 for boot
+  - This Ida plugin is also helpful: https://gist.github.com/lordneon/95383a4e0de8638a5f500a40e17ec8a6

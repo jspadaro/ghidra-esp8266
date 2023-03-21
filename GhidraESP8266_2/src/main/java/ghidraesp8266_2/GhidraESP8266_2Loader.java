@@ -58,16 +58,12 @@ public class GhidraESP8266_2Loader extends AbstractLibrarySupportLoader {
 		List<LoadSpec> loadSpecs = new ArrayList<>();
 		BinaryReader reader = new BinaryReader(provider, true);
 		ESP8266Header header = new ESP8266Header(reader);
-		if (ESP8266Constants.FLASH_MAGIC == header.getMagic()) {
-			Msg.info(this, "Flash Magic Matched");
-			loadSpecs.add(new LoadSpec(this, 0, 
-					 new LanguageCompilerSpecPair("Xtensa:LE:32:default", "default"), true));
-		} else if (ESP8266Constants.IROM_MAGIC == header.getMagic()) {
-			Msg.info(this, "IROM Magic Matched");
+		if (ESP8266Constants.ESP_IMAGE_MAGIC == header.getMagic()) {
+			Msg.info(this, "ESP8266 Image Magic Matched");
 			loadSpecs.add(new LoadSpec(this, 0, 
 					 new LanguageCompilerSpecPair("Xtensa:LE:32:default", "default"), true));
         } else {
-            Msg.info(this, "No ESP8266 magic matched");
+            //Msg.info(this, "No ESP8266 magic matched");
         }
 		return loadSpecs;
 	}
@@ -92,7 +88,7 @@ public class GhidraESP8266_2Loader extends AbstractLibrarySupportLoader {
 		Address start = program.getAddressFactory().getDefaultAddressSpace().getAddress( 0x0 );
 		try {
 			MemoryBlockUtils.createInitializedBlock(program, false, ".header", start, reader, 8, "", BLOCK_SOURCE_NAME, r, w, x, log, monitor);
-			createData(program, program.getListing(), start, header.toDataType());
+			//createData(program, program.getListing(), start, header.toDataType(), 8);
 		} catch (AddressOverflowException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -122,10 +118,10 @@ public class GhidraESP8266_2Loader extends AbstractLibrarySupportLoader {
 		String BLOCK_SOURCE_NAME = "ESP8266 Section";
 		for (ESP8266Section section: module.getSections()) {
 			Address start = program.getAddressFactory().getDefaultAddressSpace().getAddress(section.getOffset());
-			Msg.info(this, String.format("Section at offset %08x, size %d", start.getOffset(), section.getSize()));
+			Msg.info(this, String.format("Section at offset %08x, size %d, name %s", start.getOffset(), section.getSize(), section.getName()));
 			MemoryBlockUtils.createInitializedBlock(program, false,
 				section.getName(), start, reader, section.getSize(), "", BLOCK_SOURCE_NAME, r, w, x, log, monitor);
-			createData(program, program.getListing(), start, section.toDataType());			
+			//createData(program, program.getListing(), start, section.toDataType(), section.getSize());			
 			// Mark code sections
 			if(section.getType() == ESP8266Constants.SECTION_TYPE_CODE)
 			{
@@ -142,16 +138,21 @@ public class GhidraESP8266_2Loader extends AbstractLibrarySupportLoader {
 	public Data createData(Program program, Listing listing, Address address, DataType dt) {
 		try {
 			Data d = listing.getDataAt(address);
+            // Fun Ghidra fact: all these createData() functions end up at CodeManager.java's createCodeUnit
+            // If data is a FactoryDataType, user-provided length is ignored
+            // If it's a function definition, will get length from dataType
+            // Can't really specify length except for specific dynamic types where allowed
+            // So need to be careful about datatypes to mark the correct section of code
 			if (d == null || !dt.isEquivalent(d.getDataType())) {
-				//d = DataUtilities.createData(program, address, dt, -1, false, ClearDataMode.CLEAR_ALL_UNDEFINED_CONFLICT_DATA);
-				d = DataUtilities.createData(program, address, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
+				d = DataUtilities.createData(program, address, dt, -1, false, ClearDataMode.CLEAR_ALL_UNDEFINED_CONFLICT_DATA);
+				//d = DataUtilities.createData(program, address, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
+				//d = listing.createData(address, dt;
 			}
 			return d;
 		}
 		catch (CodeUnitInsertionException e) {
 			Msg.warn(this, "Data markup conflict at " + address);
-            Msg.warn(this, e.getMessage());
-            e.printStackTrace();
+            Msg.warn(this, "Exception: " + e.getMessage());
 		}
 		return null;
 	}

@@ -16,7 +16,7 @@ public class ESP8266Module  {
 	public ESP8266Module(BinaryReader reader) throws IOException {
 		header = new ESP8266Header(reader);
 		for(int i=0; i < header.getSegmentCount(); ++i) {
-			sections.add(new ESP8266Section(reader));
+			sections.add(new ESP8266Section(reader, header));
 		}
         try {
             // Parse user ROM
@@ -24,7 +24,7 @@ public class ESP8266Module  {
             userheader = new ESP8266Header(reader);
             for(int i=0; i < userheader.getSegmentCount(); ++i) {
                 Msg.info(this, "Adding section");
-                sections.add(new ESP8266Section(reader));
+			    sections.add(new ESP8266Section(reader, userheader));
             }
         }
         catch(IOException e) {
