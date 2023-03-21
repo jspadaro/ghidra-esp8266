@@ -10,6 +10,11 @@ I think it's mostly correct now.  Major change was supporting the v2 (0xea magic
 - Tested with Ghidra 10.2.3
 - Requires Tensilica Xtensa plugin: https://github.com/Ebiroll/ghidra-xtensa
   - This fork *appears* more up-to-date than the original
+  - The prebuilt zips are 3 years old as of this writing, you'll have to build yourself
+
+### Install Xtensa Support
+
+- This isn't this plugin, you need it 
 
 ### Easy Install - Pre-built Zip
 
@@ -62,7 +67,8 @@ right.
   - Adding other ROMs should be a matter of walking through that and fixing up
     the loader section analysis
 - Magic: Appears that 0xe9 = v1, 0xea = v2 formats
+  - Looks like a single flash image can have both (one for boot, one for user)
   - Boot segment is at 0x0, user is 0x1000
   - Unintuitively, at least one Tuya Smart device I have has v2 format for user,
     but v1 for boot
-  - This Ida plugin is also helpful: https://gist.github.com/lordneon/95383a4e0de8638a5f500a40e17ec8a6
+  - This Ida plugin is also helpful for reference: https://gist.github.com/lordneon/95383a4e0de8638a5f500a40e17ec8a6
