@@ -5,6 +5,12 @@ issues I had when trying to load a tuyasmart-based ESP8266 binary (TYWE1S)
 
 I think it's mostly correct now.  Major change was supporting the v2 (0xea magic) header.
 
+### Prerequisites
+
+- Tested with Ghidra 10.2.3
+- Requires Tensilica Xtensa plugin: https://github.com/Ebiroll/ghidra-xtensa
+  - This fork *appears* more up-to-date than the original
+
 ### Easy Install - Pre-built Zip
 
 Download Extension:
