@@ -1,7 +1,9 @@
 # Ghidra-ESP8266
 
 This is hank/ghidra-esp8266 updated for Ghidra 10.2.3.  It also fixes some
-issues I had when trying to load a tuyasmart-based ESP8266 binary.
+issues I had when trying to load a tuyasmart-based ESP8266 binary (TYWE1S)
+
+I think it's mostly correct now.  Major change was supporting the v2 (0xea magic) header.
 
 ### Easy Install - Pre-built Zip
 
